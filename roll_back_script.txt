@@ -1,0 +1,52 @@
+#!/bin/bash
+# ------------------------------------------------------------
+# Rollback Script for Java Application using Nexus
+# This script:
+# 1. Takes a version as input from Jenkins parameter
+# 2. Downloads that version from Nexus
+# 3. Deploys it to Tomcat
+# ------------------------------------------------------------
+
+# Read rollback version passed from Jenkins parameter
+# Example: 1.0.0 or 2.0.0
+VERSION=$ROLLBACK_VERSION
+
+# Application name (context name in Tomcat)
+APP_NAME="java1"
+
+# Tomcat installation directory
+TOMCAT_HOME="/opt/tomcat"
+
+# Nexus artifact URL (points to the selected version)
+NEXUS_URL="http://10.0.2.15:8081/repository/java1/abhi/webapp/$VERSION/webapp-$VERSION.war"
+
+# Prevent Jenkins from killing Tomcat when job finishes
+export BUILD_ID=dontKillMe
+
+# ------------------------------------------------------------
+# Stop Tomcat (ignore error if Tomcat is already stopped)
+# ------------------------------------------------------------
+sudo sh $TOMCAT_HOME/bin/shutdown.sh || true
+
+# ------------------------------------------------------------
+# Remove old deployed application (cleanup)
+# ------------------------------------------------------------
+sudo rm -rf $TOMCAT_HOME/webapps/$APP_NAME
+sudo rm -rf $TOMCAT_HOME/webapps/$APP_NAME.war
+
+# ------------------------------------------------------------
+# Download selected version from Nexus and deploy to Tomcat
+# ------------------------------------------------------------
+sudo curl -u admin:Abhijeet@123 \
+     -L -f \
+     -o $TOMCAT_HOME/webapps/$APP_NAME.war \
+     "$NEXUS_URL"
+
+# ------------------------------------------------------------
+# Start Tomcat after deployment
+# ------------------------------------------------------------
+sudo sh $TOMCAT_HOME/bin/startup.sh
+
+# Wait a few seconds for Tomcat to start properly
+sleep 5
+
