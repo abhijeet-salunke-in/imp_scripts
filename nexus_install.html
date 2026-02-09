@@ -1,0 +1,94 @@
+<xmp>
+1. Install Java
+2. Install Tomcat
+3. Install Jenkins
+
+4. Create a directory named app and cd into the directory.
+
+# mkdir /app && cd /app
+
+5: Download the latest nexus. 
+   You can get the latest download links fo for nexus from here.
+
+# wget -O nexus.tar.gz https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+
+5. Untar the downloaded file.
+
+# tar -xvf nexus.tar.gz
+
+6. Rename the untared file to nexus.
+
+# mv nexus-3* nexus
+
+7. Add Nexus user 
+
+# adduser nexus
+
+8. Change the ownership of nexus files and nexus data directory to nexus user.
+
+# chown -R nexus:nexus /app/nexus
+# chown -R nexus:nexus /app/sonatype-work
+
+9. Create/Open     /app/nexus/bin/nexus.rc file
+
+# vi  /app/nexus/bin/nexus.rc
+
+10. Add Below line to /app/nexus/bin/nexus.rc file
+
+    run_as_user="nexus"
+
+11. Create a nexus systemd unit file.
+
+# vi /etc/systemd/system/nexus.service
+
+Add the following contents to the unit file.
+------------------------------------------------
+[Unit]
+Description=nexus service
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+User=nexus
+Group=nexus
+ExecStart=/app/nexus/bin/nexus start
+ExecStop=/app/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+-------------------------------------------------
+
+0 = Permissive (allow, log)
+1 = Enforcing (block, log)
+
+| Command        | Effect          |
+| -------------- | --------------- |
+| `setenforce 0` | Permissive mode |
+| `setenforce 1` | Enforcing mode  |
+
+12. SELinux stops blocking things
+=> Here we give permission to do something which violate policies.
+
+# setenforce 0          
+
+13. Execute the following command to add nexus service to boot.(Optional)
+
+# chkconfig nexus on
+
+14. Re-read the services files . (.services , .socket, etc...)
+
+# systemctl daemon-reload
+
+15. Start the Nexus service.
+
+# systemctl start nexus
+
+--------------------------------
+
+OPEN BROWSER AND VISIT 
+8081 : default port for nexus
+http:< IP >:8081
+</xmp>
