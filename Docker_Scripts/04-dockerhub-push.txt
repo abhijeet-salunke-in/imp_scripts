@@ -1,0 +1,29 @@
+Jenkins Pipeline: Docker-push-dockerhub
+
+This script pushes your local builds to your public Docker Hub account.
+Groovy
+
+pipeline {
+    agent any 
+    stages {
+        stage('Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/abhijeet-salunke-in/port1.git'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t port:v${IMAGE} ."
+            }
+        }
+        stage('Push to Registry') {
+            steps {
+                // 'docker1' is the Credential ID stored in Jenkins Global Credentials
+                withDockerRegistry([credentialsId: 'docker1', url: '']) {
+                    sh "docker tag port:v${IMAGE} abhisalunke16/portfolio:v${IMAGE}"
+                    sh "docker push abhisalunke16/portfolio:v${IMAGE}"
+                }
+            }
+        }
+    }
+}

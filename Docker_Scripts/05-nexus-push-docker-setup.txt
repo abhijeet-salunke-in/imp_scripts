@@ -1,0 +1,37 @@
+Nexus Repository Setup (Docker Hosted)
+
+File Name: 05-nexus-docker-registry-setup.md
+
+Before pushing images to Nexus, you must configure the server to allow insecure connections and handle authentication.
+1. Nexus Console Configuration
+
+    Create Repository: Create a docker (hosted) repository in Nexus.
+
+    Port Setup: Set the HTTP connector port (e.g., 8082 or 1212).
+
+    Security: Go to Settings -> Security -> Realms. Add Docker Bearer Token Realm to the "Active" side.
+
+2. Linux Terminal Configuration
+
+You must tell Docker to trust your local Nexus registry by editing the daemon.json file.
+Bash
+
+# Edit the docker daemon file
+sudo vim /etc/docker/daemon.json
+
+Add these contents:
+JSON
+
+{
+  "insecure-registries": ["192.168.56.101:8082"]
+}
+
+Note: Replace the IP/Port with your actual Nexus details.
+3. Restart and Login
+Bash
+
+# Restart Docker to apply changes
+sudo systemctl restart docker
+
+# Login to Nexus via CLI
+docker login 192.168.56.101:8082

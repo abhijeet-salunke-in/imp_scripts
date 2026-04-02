@@ -1,0 +1,36 @@
+1. Project Goal
+
+Create and live-deploy a website using a Jenkins Pipeline with Docker (using httpd as the base image).
+2. Project Structure (GitHub)
+
+Your repository should look like this:
+
+    html/ (directory containing index.html, css, js)
+
+    Dockerfile
+
+    README.md
+
+3. Dockerfile Contents
+Dockerfile
+
+# Use Apache HTTP Server as base image
+FROM httpd
+
+# Copy your local html files to the default Apache directory
+COPY ./html/ /usr/local/apache2/htdocs/
+
+4. Critical Setup: Fixing "Permission Denied"
+
+When running Docker commands via Jenkins, you will likely hit this error:
+
+    got permission denied while trying to connect to the Docker daemon socket
+
+The Solution: Add the jenkins user to the docker group on your host machine to give it permanent permission to run commands without sudo.
+Bash
+
+# Append jenkins user to the docker group
+sudo usermod -aG docker jenkins
+
+# Restart Jenkins to apply changes
+sudo systemctl restart jenkins

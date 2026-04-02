@@ -1,0 +1,31 @@
+Rollback Strategy (Docker Hub & Nexus)
+
+File Name: 08-rollback-logic.md
+
+Rollback is critical for production. If a new version fails, these scripts stop the "bad" container, remove it, pull a specific "good" version from the registry, and restart it.
+Logic Flow:
+
+    Stop/Remove: Use || true so the script doesn't fail if the container isn't running.
+
+    Pull: Fetch the specific version $IMAGE (or $VERSION) from the registry.
+
+    Run: Launch the container on the designated port.
+
+Rollback Script Example (Nexus):
+Groovy
+
+stage('Rollback from Nexus') {
+    steps {
+        sh '''
+        # Stop & Remove existing container
+        docker stop $CONTAINER_NAME || true
+        docker rm $CONTAINER_NAME || true
+        
+        # Pull the specific version requested
+        docker pull $NEXUS_URL/$IMAGE_NAME:v$VERSION
+        
+        # Deploy
+        docker run -d -p $PORT:8080 --name $CONTAINER_NAME $NEXUS_URL/$IMAGE_NAME:v$VERSION
+        '''
+    }
+}
