@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------
-Pipeline Name : Java Web Application Deployment on Tomcat
+Pipeline Name : Java Web Application Deployment on Tomcat using jenkins SSH Credentials.
 
 Description:
     This Jenkins pipeline automates the deployment of a Java
